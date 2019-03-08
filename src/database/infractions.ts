@@ -1,14 +1,6 @@
 import pool from "./pool";
 import { format } from "sqlstring";
 
-/*
-CREATE TABLE `settings` (
-	`guild` VARCHAR(20) NOT NULL,
-	`key` VARCHAR(20) NOT NULL,
-	`value` VARCHAR(512) NOT NULL
-);
-*/
-
 async function __init() {
     const result = await pool.query(format("SHOW TABLES LIKE ?", ["infractions"]));
 
