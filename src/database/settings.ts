@@ -42,11 +42,11 @@ export async function queryValues(query: string): Promise<Map<string, GuildSetti
 }
 
 export async function insertKeyValue(guild: string, key: string, value: string) {
-    await pool.query(format("INSERT INTO ? VALUES (?, ?, ?)", ["settings", guild, key, value]));
+    await pool.query(format("INSERT INTO ?? VALUES (?, ?, ?)", ["settings", guild, key, value]));
 }
 
 export async function modifyValue(guild: string, key: string, value: string) {
-    await pool.query(format("UPDATE ? SET ?? = ? WHERE ?? = ? AND ?? = ?", ["settings", "value", value, "guild", guild, "key", key]));
+    await pool.query(format("UPDATE ?? SET ?? = ? WHERE ?? = ? AND ?? = ?", ["settings", "value", value, "guild", guild, "key", key]));
 }
 
 __init();
