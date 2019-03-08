@@ -1,7 +1,7 @@
-import pool from "./pool";
 import { format } from "sqlstring";
 import GuildSettings from "../model/settings";
 import GuildSetting from "../model/settings";
+import pool from "./pool";
 
 /*
 CREATE TABLE `settings` (
@@ -21,16 +21,16 @@ async function __init() {
 }
 
 export async function queryValues(query: string): Promise<Map<string, GuildSettings[]>> {
-    const result = <Array<any>>await pool.query(query);
+    const result = await pool.query(query) as any[];
 
-    var map = new Map<string, GuildSettings[]>();
+    const map = new Map<string, GuildSettings[]>();
 
-    result.forEach(element => {
-        if (!map.has(element.guild)){
+    result.forEach((element) => {
+        if (!map.has(element.guild)) {
             map.set(element.guild, []);
         }
 
-        let setting = new GuildSetting();
+        const setting = new GuildSetting();
 
         setting.key = element.key;
         setting.value = element.value;

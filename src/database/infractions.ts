@@ -1,5 +1,5 @@
-import pool from "./pool";
 import { format } from "sqlstring";
+import pool from "./pool";
 
 async function __init() {
     const result = await pool.query(format("SHOW TABLES LIKE ?", ["infractions"]));
