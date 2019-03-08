@@ -1,9 +1,12 @@
 import app from "../index";
-import { queryValues, insertKeyValue } from "../database/settings";
+import { queryValues } from "../database/settings";
 import { format } from "sqlstring";
 import GuildSetting from "../model/settings";
 
 var settings: Map<string, GuildSetting[]>;
+
+const whitelistTypes = [".png", ".jpg", ".gif", ".mp4"];
+const seperator = "|";
 
 export async function __init(){
     settings = await queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "image-channel"]));
@@ -22,9 +25,9 @@ app.on("message", async message => {
         let attachment = message.attachments.first();
 
         if (attachment === undefined){
-            await message.delete();
-        }else if (!attachment.filename.endsWith(".png") && !attachment.filename.endsWith(".jpg") && !attachment.filename.endsWith(".gif")){
-            await message.delete();
+            await message.delete().catch(console.error);
+        }else if (!endsInWhitelist(attachment.filename)){
+            await message.delete().catch(console.error);
         }else{
             await message.react("👍");
             await message.react("👎");
@@ -34,9 +37,19 @@ app.on("message", async message => {
 });
 
 function parseIds(value: string): string[]{
-    return value.split("|");
+    return value.split(seperator);
 }
 
 function compileIds(array: string[]): string{
-    return array.join("|");
+    return array.join(seperator);
+}
+
+function endsInWhitelist(attachment: string): boolean{
+    for (const type in whitelistTypes) {
+        if (attachment.endsWith(whitelistTypes[type])){
+            return true;
+        }
+    }
+
+    return false;
 }
