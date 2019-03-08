@@ -1,7 +1,7 @@
-import { createPool as CreatePool } from "promise-mysql";
+import { createPool } from "promise-mysql";
 
 const env = process.env;
-const pool = CreatePool(
+const pool = createPool(
     {
         connectionLimit: 10,
         database: env.MySQLDatabase || "pirate-jim",

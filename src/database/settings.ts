@@ -1,5 +1,7 @@
 import pool from "./pool";
 import { format } from "sqlstring";
+import GuildSettings from "../model/settings";
+import GuildSetting from "../model/settings";
 
 /*
 CREATE TABLE `settings` (
@@ -18,10 +20,25 @@ async function __init() {
     }
 }
 
-export async function queryValues(query: string): Promise<Map<string, Map<string, string>>> {
-    const result = await pool.query(query);
+export async function queryValues(query: string): Promise<Map<string, GuildSettings[]>> {
+    const result = <Array<any>>await pool.query(query);
 
-    return null;
+    var map = new Map<string, GuildSettings[]>();
+
+    result.forEach(element => {
+        if (!map.has(element.guild)){
+            map.set(element.guild, []);
+        }
+
+        let setting = new GuildSetting();
+
+        setting.key = element.key;
+        setting.value = element.value;
+
+        map.get(element.guild).push(element.key, setting);
+    });
+
+    return map;
 }
 
 export async function insertKeyValue(guild: string, key: string, value: string) {
@@ -31,4 +48,5 @@ export async function insertKeyValue(guild: string, key: string, value: string) 
 export async function modifyValue(guild: string, key: string, value: string) {
     await pool.query(format("UPDATE ? SET ?? = ? WHERE ?? = ? AND ?? = ?", ["settings", "value", value, "guild", guild, "key", key]));
 }
+
 __init();
