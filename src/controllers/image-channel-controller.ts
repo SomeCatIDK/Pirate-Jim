@@ -44,7 +44,7 @@ app.on("message", async (message) => {
 
             if (attachment === undefined) {
                 await message.delete().catch(console.error);
-            } else if (!endsInWhitelist(attachment.filename)) {
+            } else if (!endsInWhitelist(attachment.filename) || message.attachments.size !== 1) {
                 await message.delete().catch(console.error);
             } else {
                 await message.react("👍");
