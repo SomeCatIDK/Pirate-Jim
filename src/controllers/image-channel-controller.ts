@@ -1,3 +1,4 @@
+import { TextChannel } from "discord.js";
 import { format } from "sqlstring";
 import { insertKeyValue, modifyValue, queryValues } from "../database/settings";
 import app from "../index";
@@ -23,23 +24,7 @@ app.on("message", async (message) => {
 
     if (channels !== undefined) {
         const ids = parseIds(channels.value);
-
-        if (message.content === "!setimagechannel" && message.member.hasPermission("MANAGE_CHANNELS")) {
-            if (ids.find((x) => x === message.channel.id)) {
-                ids.splice(ids.indexOf(message.channel.id), 1);
-                message.channel.send("This channel is no longer an image channel!");
-            } else {
-                ids.push(message.channel.id);
-                message.channel.send("This channel is now an image channel!");
-            }
-
-            const newVal = compileIds(ids);
-
-            settings.get(message.guild.id).find((x) => x.key === "image-channel").value = newVal;
-
-            await modifyValue(message.guild.id, "image-channel", newVal);
-
-        } else if (ids.find((x) => x === message.channel.id)) {
+        if (ids.find((x) => x === message.channel.id)) {
             const attachment = message.attachments.first();
 
             if (attachment === undefined) {
@@ -52,17 +37,40 @@ app.on("message", async (message) => {
                 await message.react("\u2764");
             }
         }
-    } else if (message.content === "!setimagechannel" && message.member.hasPermission("MANAGE_CHANNELS")) {
+    }
+});
+
+export async function setImageChannel(channel: TextChannel): Promise<boolean> {
+    const channels = settings.get(channel.guild.id).find((x) => x.key === "image-channel");
+
+    if (channels !== undefined) {
+        const ids = parseIds(channels.value);
+        let result: boolean;
+
+        if (ids.find((x) => x === channel.id)) {
+            ids.splice(ids.indexOf(channel.id), 1);
+            result = false;
+        } else {
+            ids.push(channel.id);
+            result = true;
+        }
+
+        const newVal = compileIds(ids);
+        settings.get(channel.guild.id).find((x) => x.key === "image-channel").value = newVal;
+        await modifyValue(channel.guild.id, "image-channel", newVal);
+        return result;
+    } else {
         const guildSetting = new GuildSetting();
 
         guildSetting.key = "image-channel";
-        guildSetting.value = message.channel.id;
+        guildSetting.value = channel.id;
 
-        settings.set(message.guild.id, [guildSetting]);
+        settings.set(channel.guild.id, [guildSetting]);
 
-        await insertKeyValue(message.guild.id, "image-channel", message.channel.id);
+        await insertKeyValue(channel.guild.id, "image-channel", channel.id);
+        return true;
     }
-});
+}
 
 function parseIds(value: string): string[] {
     return value.split(seperator);
