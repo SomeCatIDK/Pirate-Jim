@@ -14,7 +14,5 @@ export default class CommandSetImageChannel implements ICommand {
         } else {
             message.channel.send("This channel is no longer an image channel!");
         }
-
-        return;
     }
 }

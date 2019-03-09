@@ -9,7 +9,7 @@ let settings: Map<string, GuildSetting[]>;
 const whitelistTypes = [".png", ".jpg", ".gif", ".mp4"];
 const seperator = "|";
 
-export async function __init() {
+async function __init() {
     settings = await queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "image-channel"]));
 }
 
