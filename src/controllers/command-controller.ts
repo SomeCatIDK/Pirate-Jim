@@ -3,18 +3,23 @@ import ICommand from "../model/command";
 
 const commandDatabase = new Map<string, ICommand>();
 
-const seperator = " | ";
 const prefix = "!";
 
 app.on("message", async (message) => {
     if (message.content.startsWith(prefix)) {
-        const args = message.content.substr(1).split(seperator);
+        const args = message.content.substr(1);
 
         if (args.length > 0) {
-            const command = commandDatabase.get(args[0]);
+            const command = commandDatabase.get(args);
 
             if (command !== undefined) {
-                await command.execute(message, args.slice(0, args.length - 1));
+                await command.execute(message, null);
+            } else {
+                commandDatabase.forEach(async (entry, key) => {
+                    if (args.startsWith(key + " ")) {
+                        await entry.execute(message, args.substr(key.length + 1));
+                    }
+                });
             }
         }
     }

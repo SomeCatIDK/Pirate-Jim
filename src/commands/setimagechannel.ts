@@ -6,7 +6,7 @@ export default class CommandSetImageChannel implements ICommand {
     public name = "setimagechannel";
     public help = "Sets the channel this is sent into as an image channel if it's not one, or else removes it as one.";
 
-    public async execute(message: Message, args: string[]) {
+    public async execute(message: Message, args: string) {
         const result = await setImageChannel(message.channel as TextChannel);
 
         if (result) {
