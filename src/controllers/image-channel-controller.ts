@@ -32,9 +32,9 @@ app.on("message", async (message) => {
             } else if (!endsInWhitelist(attachment.filename) || message.attachments.size !== 1) {
                 await message.delete().catch(console.error);
             } else {
-                await message.react("👍");
-                await message.react("👎");
-                await message.react("\u2764");
+                await message.react("👍").catch(console.error);
+                await message.react("👎").catch(console.error);
+                await message.react("\u2764").catch(console.error);
             }
         }
     }
