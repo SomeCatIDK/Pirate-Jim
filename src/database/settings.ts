@@ -1,6 +1,5 @@
 import { format } from "sqlstring";
 import GuildSettings from "../model/settings";
-import GuildSetting from "../model/settings";
 import pool from "./pool";
 
 /*
@@ -30,7 +29,7 @@ export async function queryValues(query: string): Promise<Map<string, GuildSetti
             map.set(element.guild, []);
         }
 
-        const setting = new GuildSetting();
+        const setting = new GuildSettings();
 
         setting.key = element.key;
         setting.value = element.value;
