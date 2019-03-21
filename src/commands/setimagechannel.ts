@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js";
-import { setImageChannel } from "../controllers/image-channel-controller";
+import { setImageChannel } from "../controllers/image-channels";
 import ICommand from "../model/command";
 
 export default class CommandSetImageChannel implements ICommand {
