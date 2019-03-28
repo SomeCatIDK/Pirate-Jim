@@ -4,8 +4,8 @@ const app = new Client();
 export default app;
 
 import CommandSetImageChannel from "./commands/setimagechannel";
-import { registerCommand } from "./controllers/commands";
 import CommandSetTimedChannel from "./commands/settimedchannel";
+import { registerCommand } from "./controllers/commands";
 
 require("./controllers/image-channels");
 require("./controllers/timed-channels");
