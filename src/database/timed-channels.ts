@@ -4,7 +4,7 @@ import pool from "./pool";
 
 /*
 CREATE TABLE `settings` (
-	`userid` VARCHAR(20) NOT NULL,
+	`userId` VARCHAR(20) NOT NULL,
 	`channelId` VARCHAR(20) NOT NULL,
 	`timeSent` BIGINT NOT NULL
 );

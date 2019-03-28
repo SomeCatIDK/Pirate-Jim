@@ -1,5 +1,4 @@
 import { TextChannel } from "discord.js";
-import { stringify } from "querystring";
 import { format } from "sqlstring";
 import { insertKeyValue, modifyValue as modifySettingsValue, queryValues as querySettingsValues } from "../database/settings";
 import { insertTimedChannelMessage, modifyValue, queryValues } from "../database/timed-channels";
@@ -11,7 +10,6 @@ import TimedChannelMessage from "../model/timed-channel-message";
 let settings: Map<string, GuildSetting[]>;
 let timedChannelMessages: TimedChannelMessage[];
 
-const whitelistTypes = [".png", ".jpg", ".gif", ".mp4"];
 const seperator = "|";
 
 async function __init() {
@@ -36,14 +34,14 @@ app.on("message", async (message) => {
             let timedChannelMessage = timedChannelMessages.find((x) => x.userId === message.author.id && x.channelId === message.channel.id);
 
             if (timedChannelMessage) {
-                if (Date.now() - timedChannelMessage.timeSent > timedChannel.waitTime) {
+                if (Date.now() - timedChannelMessage.timeSent > (timedChannel.waitTime * 1000)) {
                     await modifyValue(message.author.id, message.channel.id, Date.now());
 
                     timedChannelMessages.splice(timedChannelMessages.indexOf(timedChannelMessage, 1));
                     timedChannelMessage.timeSent = Date.now();
                     timedChannelMessages.push(timedChannelMessage);
                 } else {
-                    message.delete();
+                    await message.delete();
                 }
             } else {
                 timedChannelMessage = new TimedChannelMessage();
