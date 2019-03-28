@@ -21,7 +21,7 @@ A timed channel is a channel with an extended slowmode. These channels are usefu
 
 **!setimagechannel:** Sets a channel as an image channel or removes a channel as one.
 
-**!settimedchannel <time>:** Sets a channel as a timed channel with the given time; if you are removing a channel as a timed channel, then no time will need to be provided.
+**!settimedchannel \<time\>:** Sets a channel as a timed channel with the given time; if you are removing a channel as a timed channel, then no time will need to be provided.
   
 ### Support:
 
