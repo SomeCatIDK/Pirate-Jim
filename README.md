@@ -2,7 +2,7 @@
 
 Thanks for checking out Pirate Jim! 
 
-Pirate Jim is a Discord bot designed to be used with the Unturned Official Discord guild, but supports multiple guilds and can be added to any guild. It will eventually have a complex infraction systemn with per-guild configuration settings, but just isn't at that point yet.
+Pirate Jim is a Discord bot designed to be used with the Unturned Official Discord guild, but supports multiple guilds and can be added to any guild. It will eventually have a complex infraction system with per-guild configuration settings, but just isn't at that point yet.
 
 If you will use this bot, please remember it is very much in the alpha stage, and can become unstable in a few rare cases.
 
