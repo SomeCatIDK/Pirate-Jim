@@ -1,6 +1,6 @@
 import { format } from "sqlstring";
-import TimedChannelMessage from "../model/timed-channel-message";
-import pool from "./pool";
+import TimedChannelMessage from "../../model/channels/timed-channel-message";
+import pool from "../pool";
 
 /*
 CREATE TABLE `settings` (

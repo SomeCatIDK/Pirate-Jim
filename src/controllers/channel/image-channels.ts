@@ -1,8 +1,8 @@
 import { TextChannel } from "discord.js";
 import { format } from "sqlstring";
-import { insertKeyValue, modifyValue, queryValues } from "../database/settings";
-import app from "../index";
-import GuildSetting from "../model/settings";
+import { insertKeyValue, modifyValue, queryValues } from "../../database/settings";
+import app from "../../index";
+import GuildSetting from "../../model/settings";
 
 let settings: Map<string, GuildSetting[]>;
 

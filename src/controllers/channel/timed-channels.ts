@@ -1,11 +1,11 @@
 import { TextChannel } from "discord.js";
 import { format } from "sqlstring";
-import { insertKeyValue, modifyValue as modifySettingsValue, queryValues as querySettingsValues } from "../database/settings";
-import { insertTimedChannelMessage, modifyValue, queryValues } from "../database/timed-channels";
-import app from "../index";
-import GuildSetting from "../model/settings";
-import TimedChannel from "../model/timed-channel";
-import TimedChannelMessage from "../model/timed-channel-message";
+import { insertTimedChannelMessage, modifyValue, queryValues } from "../../database/channel/timed-channels";
+import { insertKeyValue, modifyValue as modifySettingsValue, queryValues as querySettingsValues } from "../../database/settings";
+import app from "../../index";
+import TimedChannel from "../../model/channels/timed-channel";
+import TimedChannelMessage from "../../model/channels/timed-channel-message";
+import GuildSetting from "../../model/settings";
 
 let settings: Map<string, GuildSetting[]>;
 let timedChannelMessages: TimedChannelMessage[];
@@ -81,7 +81,6 @@ export async function setTimedChannel(channel: TextChannel, time: number | null)
 
                 result = true;
             } else {
-                channel.sendMessage("Invalid syntax! Please assign a number in seconds to define the wait-time of the channel.");
                 return null;
             }
         }
@@ -102,7 +101,6 @@ export async function setTimedChannel(channel: TextChannel, time: number | null)
         return true;
     }
 
-    channel.sendMessage("Invalid syntax! Please assign a number in seconds to define the wait-time of the channel.");
     return null;
 }
 

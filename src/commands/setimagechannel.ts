@@ -1,18 +1,29 @@
-import { Message, TextChannel } from "discord.js";
-import { setImageChannel } from "../controllers/image-channels";
-import ICommand from "../model/command";
+import { GuildMember, Message, TextChannel } from "discord.js";
+import { setImageChannel } from "../controllers/channel/image-channels";
+import ICommand from "../model/command/command";
+import ECommandCategory from "../model/command/command-category";
+import ECommandResult from "../model/command/command-result";
 
 export default class CommandSetImageChannel implements ICommand {
     public name = "setimagechannel";
-    public help = "Sets the channel this is sent into as an image channel if it's not one, or else removes it as one.";
+    public aliases: string[] = [];
+    public syntax = "setimagechannel";
+    public description = "Sets a channel as an image channel.";
+    public category = ECommandCategory.CHANNEL;
 
-    public async execute(message: Message, args: string) {
-        const result = await setImageChannel(message.channel as TextChannel);
+    public async execute(author: GuildMember, channel: TextChannel, args: string[]): Promise<ECommandResult> {
+        if (!author.hasPermission("MANAGE_CHANNELS")) {
+            return ECommandResult.NOT_ENOUGH_PERMISSION;
+        }
+
+        const result = await setImageChannel(channel as TextChannel);
 
         if (result) {
-            message.channel.send("This channel is now an image channel!");
+            channel.send("This channel is now an image channel!");
         } else {
-            message.channel.send("This channel is no longer an image channel!");
+            channel.send("This channel is no longer an image channel!");
         }
+
+        return ECommandResult.SUCCESS;
     }
 }
