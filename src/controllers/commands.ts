@@ -64,16 +64,16 @@ client.on("message", async (message) => {
 
     switch (result) {
         case ECommandResult.NOT_ENOUGH_PERMISSION:
-            textChannel.send("You don't have the required permissions to execute this command!");
+            textChannel.send("**You don't have the required permissions to execute this command!**");
             break;
         case ECommandResult.INVALID_SYNTAX:
             textChannel.send(
-                `The syntax you supplied for the command was incorrect!\n` +
-                `Please do ${prefix + "help " + command.name} for the proper usage of this command.`
+                `**The syntax you supplied for the command was incorrect!**\n` +
+                `Please do \`${prefix + "help " + command.name}\` for the proper usage of this command.`
             );
             break;
         case ECommandResult.INTERNAL_ERROR:
-            textChannel.send("There was an internal error, please contact an administrator.");
+            textChannel.send("**There was an internal error, please contact an administrator.**");
             break;
     }
 });
