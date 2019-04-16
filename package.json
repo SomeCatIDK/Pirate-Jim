@@ -27,8 +27,8 @@
     "@types/sqlstring": "^2.2.1",
     "nodemon": "^1.18.10",
     "ts-node": "^8.1.0",
-    "tslint": "^5.13.1",
-    "typescript": "^3.3.3333"
+    "tslint": "^5.15.0",
+    "typescript": "^3.4.3"
   },
   "dependencies": {
     "discord.js": "^11.4.2",
