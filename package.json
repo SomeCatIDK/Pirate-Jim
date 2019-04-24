@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/SomeCatIDK/Pirate-Jim#readme",
   "devDependencies": {
-    "@types/mysql": "^2.15.5",
+    "@types/mysql": "^2.15.6",
     "@types/node-schedule": "^1.2.3",
     "@types/sqlstring": "^2.2.1",
     "nodemon": "^1.18.11",
