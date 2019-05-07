@@ -1,4 +1,4 @@
-import { GuildMember, Message, TextChannel } from "discord.js";
+import { GuildMember, TextChannel } from "discord.js";
 import { setImageChannel } from "../controllers/channel/image-channels";
 import ICommand from "../model/command/command";
 import ECommandCategory from "../model/command/command-category";

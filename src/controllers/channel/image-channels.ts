@@ -1,29 +1,38 @@
-import { TextChannel } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { format } from "sqlstring";
-import { insertKeyValue, modifyValue, queryValues } from "../../database/settings";
-import app from "../../index";
-import GuildSetting from "../../model/settings";
+import settings from "../../database/settings";
+import client from "../../index";
 
-let settings: Map<string, GuildSetting[]>;
+let settingsMap: Map<string, Array<[string, string]>>;
 
 const whitelistTypes = [".png", ".jpg", ".gif", ".mp4"];
 const seperator = "|";
 
 async function __init() {
-    settings = await queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "image-channel"]));
+    settingsMap = await settings.queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "image-channel"]));
 }
 
 __init();
 
-app.on("message", async (message) => {
+settings.on("settingsChange", async () => {
+    settingsMap = await settings.queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "image-channel"]));
+});
+
+client.on("nonCommandMessage", async (message: Message) => {
     if (message.author.bot === true) {
         return;
     }
 
-    const channels = settings.get(message.guild.id).find((x) => x.key === "image-channel");
+    const setting = settingsMap.get(message.guild.id);
+
+    let channels: string;
+
+    if (setting) {
+        channels = setting.find((x) => x[0] === "image-channel")[1];
+    }
 
     if (channels !== undefined) {
-        const ids = parseIds(channels.value);
+        const ids = parseIds(channels);
         if (ids.find((x) => x === message.channel.id)) {
             const attachment = message.attachments.first();
 
@@ -41,10 +50,16 @@ app.on("message", async (message) => {
 });
 
 export async function setImageChannel(channel: TextChannel): Promise<boolean> {
-    const channels = settings.get(channel.guild.id).find((x) => x.key === "image-channel");
+    const setting = settingsMap.get(channel.guild.id);
 
-    if (channels !== undefined) {
-        const ids = parseIds(channels.value);
+    let channels: [string, string];
+
+    if (setting) {
+        channels = setting.find((x) => x[0] === "image-channel");
+    }
+
+    if (channels) {
+        const ids = parseIds(channels[1]);
         let result: boolean;
 
         if (ids.find((x) => x === channel.id)) {
@@ -56,24 +71,17 @@ export async function setImageChannel(channel: TextChannel): Promise<boolean> {
         }
 
         const newVal = compileIds(ids);
-        settings.get(channel.guild.id).find((x) => x.key === "image-channel").value = newVal;
-        await modifyValue(channel.guild.id, "image-channel", newVal);
+
+        await settings.modifyValue(channel.guild.id, "image-channel", newVal);
         return result;
     } else {
-        const guildSetting = new GuildSetting();
-
-        guildSetting.key = "image-channel";
-        guildSetting.value = channel.id;
-
-        settings.set(channel.guild.id, [guildSetting]);
-
-        await insertKeyValue(channel.guild.id, "image-channel", channel.id);
+        await settings.insertKeyValue(channel.guild.id, "image-channel", channel.id);
         return true;
     }
 }
 
 function parseIds(value: string): string[] {
-    return value.split(seperator);
+    return value.split(seperator).filter((x) => x !== "");
 }
 
 function compileIds(array: string[]): string {
