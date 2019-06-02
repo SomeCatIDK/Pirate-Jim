@@ -1,4 +1,5 @@
 import { Client } from "discord.js";
+import config from "./config";
 
 const app = new Client();
 export default app;
@@ -12,4 +13,4 @@ app.on("ready", async () => {
     console.log("Ready!");
 });
 
-app.login(process.env.BotToken);
+app.login(config.Token);

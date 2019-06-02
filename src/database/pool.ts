@@ -1,14 +1,14 @@
 import { createPool } from "promise-mysql";
+import config from "../config";
 
-const env = process.env;
 const pool = createPool(
     {
         connectionLimit: 10,
-        database: env.MySQLDatabase || "pirate-jim-staging",
-        host: env.MySQLHost || "localhost",
-        password: env.MySQLPassword || "toor",
-        port: parseInt(env.MySQLPort, 10) || 3306,
-        user: env.MySQLUser || "root"
+        database: config.MySQL.database,
+        host: config.MySQL.address,
+        password: config.MySQL.password,
+        port: config.MySQL.port,
+        user: config.MySQL.user
     });
 
 export default pool;
