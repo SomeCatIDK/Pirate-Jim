@@ -1,7 +1,7 @@
 import { TextChannel } from "discord.js";
 import path from "path";
 import { format } from "sqlstring";
-import { queryValues } from "../database/settings";
+import settings from "../database/settings";
 import client from "../index";
 import ICommand from "../model/command/command";
 import ECommandResult from "../model/command/command-result";
@@ -24,18 +24,21 @@ client.on("message", async (message) => {
     const prefix = await getPrefix(message.guild.id);
 
     if (!message.content.startsWith(prefix)) {
+        client.emit("nonCommandMessage", message);
         return;
     }
 
     const messageString = message.content.substr(prefix.length);
 
     if (messageString.length === 0) {
+        client.emit("nonCommandMessage", message);
         return;
     }
 
     const untrimmedMatches = messageString.match(regex);
 
     if (untrimmedMatches === null) {
+        client.emit("nonCommandMessage", message);
         return;
     }
 
@@ -48,6 +51,7 @@ client.on("message", async (message) => {
     const command = commandRegistry.get(matches[0].toLowerCase());
 
     if (!command) {
+        client.emit("nonCommandMessage", [message]);
         return;
     }
 
@@ -91,10 +95,10 @@ function registerCommand(command: ICommand) {
 }
 
 async function getPrefix(guild: string): Promise<string> {
-    const values = await queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "prefix"]));
+    const values = await settings.queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "prefix"]));
 
     if (values.has(guild)) {
-        return values.get(guild).find((x) => x.value === "prefix").value;
+        return values.get(guild).find((x) => x[0] === "prefix")[1];
     }
 
     return "s.";

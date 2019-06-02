@@ -1,9 +1,8 @@
 import { format } from "sqlstring";
-import TimedChannelMessage from "../../model/channels/timed-channel-message";
 import pool from "../pool";
 
 /*
-CREATE TABLE `settings` (
+CREATE TABLE `timed-channels` (
 	`userId` VARCHAR(20) NOT NULL,
 	`channelId` VARCHAR(20) NOT NULL,
 	`timeSent` BIGINT NOT NULL
@@ -19,19 +18,13 @@ async function __init() {
     }
 }
 
-export async function queryValues(query: string): Promise<TimedChannelMessage[]> {
+export async function queryValues(query: string): Promise<Array<[string, string, number]>> {
     const result = await pool.query(query) as any[];
 
-    const list: TimedChannelMessage[] = [];
+    const list: Array<[string, string, number]> = [];
 
     result.forEach((element) => {
-        const timedChannelMessage = new TimedChannelMessage();
-
-        timedChannelMessage.userId = element.userId;
-        timedChannelMessage.channelId = element.channelId;
-        timedChannelMessage.timeSent = element.timeSent;
-
-        list.push(timedChannelMessage);
+        list.push([element.userId, element.channelId, element.timeSent]);
     });
 
     return list;

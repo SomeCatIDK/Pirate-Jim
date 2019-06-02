@@ -1,82 +1,65 @@
-import { TextChannel } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { format } from "sqlstring";
 import { insertTimedChannelMessage, modifyValue, queryValues } from "../../database/channel/timed-channels";
-import { insertKeyValue, modifyValue as modifySettingsValue, queryValues as querySettingsValues } from "../../database/settings";
-import app from "../../index";
-import TimedChannel from "../../model/channels/timed-channel";
-import TimedChannelMessage from "../../model/channels/timed-channel-message";
-import GuildSetting from "../../model/settings";
+import settings from "../../database/settings";
+import client from "../../index";
 
-let settings: Map<string, GuildSetting[]>;
-let timedChannelMessages: TimedChannelMessage[];
+let settingsMap: Map<string, Array<[string, string]>>;
 
 const seperator = "|";
 
 async function __init() {
-    settings = await querySettingsValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "timed-channel"]));
-    timedChannelMessages = await queryValues(format("SELECT * FROM ??", ["timed-channel-messages"]));
+    settingsMap = await settings.queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "timed-channel"]));
 }
 
 __init();
 
-app.on("message", async (message) => {
+settings.on("settingsChange", async () => {
+    settingsMap = await settings.queryValues(format("SELECT * FROM ?? WHERE ?? = ?", ["settings", "key", "timed-channel"]));
+});
+
+client.on("nonCommandMessage", async (message: Message) => {
     if (message.author.bot === true) {
         return;
     }
 
-    const channels = settings.get(message.guild.id).find((x) => x.key === "timed-channel");
+    const channels = settingsMap.get(message.guild.id).find((x) => x[0] === "timed-channel");
 
     if (channels !== undefined) {
-        const ids = parseIds(channels.value);
-        const timedChannel = ids.find((x) => x.channelId === message.channel.id);
+        const ids = parseIds(channels[1]);
+        const timedChannel = ids.find((x) => x[0] === message.channel.id);
 
         if (timedChannel) {
-            let timedChannelMessage = timedChannelMessages.find((x) => x.userId === message.author.id && x.channelId === message.channel.id);
+            const timedChannelMessage = await queryValues(format("SELECT * FROM ?? WHERE ?? = ? AND ?? = ?", ["timed-channel-messages", "userId", message.author.id, "channelId", message.channel.id]));
 
-            if (timedChannelMessage) {
-                if (Date.now() - timedChannelMessage.timeSent > (timedChannel.waitTime * 1000)) {
+            if (timedChannelMessage.length !== 0) {
+                if (Date.now() - timedChannelMessage[0][2] > (timedChannel[1] * 1000)) {
                     await modifyValue(message.author.id, message.channel.id, Date.now());
-
-                    timedChannelMessages.splice(timedChannelMessages.indexOf(timedChannelMessage, 1));
-                    timedChannelMessage.timeSent = Date.now();
-                    timedChannelMessages.push(timedChannelMessage);
                 } else {
                     await message.delete();
                 }
             } else {
-                timedChannelMessage = new TimedChannelMessage();
-
-                timedChannelMessage.userId = message.author.id;
-                timedChannelMessage.channelId = message.channel.id;
-                timedChannelMessage.timeSent = Date.now();
-
-                await insertTimedChannelMessage(timedChannelMessage.userId, timedChannelMessage.channelId, timedChannelMessage.timeSent);
-
-                timedChannelMessages.push(timedChannelMessage);
+                await insertTimedChannelMessage(message.author.id, message.channel.id, Date.now());
             }
         }
     }
 });
 
 export async function setTimedChannel(channel: TextChannel, time: number | null): Promise<boolean | null> {
-    const channels = settings.get(channel.guild.id).find((x) => x.key === "timed-channel");
+    const channels = settingsMap.get(channel.guild.id).find((x) => x[0] === "timed-channel");
 
     if (channels !== undefined) {
-        const ids = parseIds(channels.value);
+        const ids = parseIds(channels[1]);
         let result: boolean;
 
-        let timedChannel = ids.find((x) => x.channelId === channel.id);
+        let timedChannel = ids.find((x) => x[0] === channel.id);
 
         if (timedChannel) {
             ids.splice(ids.indexOf(timedChannel), 1);
             result = false;
         } else {
             if (time != null) {
-                timedChannel = new TimedChannel();
-
-                timedChannel.channelId = channel.id;
-                timedChannel.waitTime = time;
-
+                timedChannel = [channel.id, time];
                 ids.push(timedChannel);
 
                 result = true;
@@ -86,28 +69,20 @@ export async function setTimedChannel(channel: TextChannel, time: number | null)
         }
 
         const newVal = compileIds(ids);
-        settings.get(channel.guild.id).find((x) => x.key === "timed-channel").value = newVal;
-        await modifySettingsValue(channel.guild.id, "timed-channel", newVal);
+        await settings.modifyValue(channel.guild.id, "timed-channel", newVal);
         return result;
     } else if (time != null) {
-        const guildSetting = new GuildSetting();
-
-        guildSetting.key = "timed-channel";
-        guildSetting.value = [channel.id, time.toString].join(":");
-
-        settings.set(channel.guild.id, [guildSetting]);
-
-        await insertKeyValue(channel.guild.id, "timed-channel", [channel.id, time.toString].join(":"));
+        await settings.insertKeyValue(channel.guild.id, "timed-channel", [channel.id, time.toString].join(":"));
         return true;
     }
 
     return null;
 }
 
-function parseIds(value: string): TimedChannel[] {
+function parseIds(value: string): Array<[string, number]> {
     const pairs = value.split(seperator);
 
-    const list: TimedChannel[] = [];
+    const list: Array<[string, number]> = [];
 
     pairs.forEach((x) => {
         const values = x.split(":");
@@ -116,12 +91,7 @@ function parseIds(value: string): TimedChannel[] {
             const time = parseInt(values[1], 10);
 
             if (!isNaN(time)) {
-                const timedChannel = new TimedChannel();
-
-                timedChannel.channelId = values[0];
-                timedChannel.waitTime = time;
-
-                list.push(timedChannel);
+                list.push([values[0], time]);
             }
         }
     });
@@ -129,11 +99,11 @@ function parseIds(value: string): TimedChannel[] {
     return list;
 }
 
-function compileIds(array: TimedChannel[]): string {
+function compileIds(array: Array<[string, number]>): string {
     const values: string[] = [];
 
     array.forEach((x) => {
-        const innerValues = [x.channelId, x.waitTime.toString()];
+        const innerValues = [x[0], x[1].toString()];
         values.push(innerValues.join(":"));
     });
 

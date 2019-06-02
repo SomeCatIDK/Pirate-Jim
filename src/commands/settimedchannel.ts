@@ -1,4 +1,4 @@
-import { GuildMember, Message, TextChannel } from "discord.js";
+import { GuildMember, TextChannel } from "discord.js";
 import { setTimedChannel } from "../controllers/channel/timed-channels";
 import ICommand from "../model/command/command";
 import ECommandCategory from "../model/command/command-category";
