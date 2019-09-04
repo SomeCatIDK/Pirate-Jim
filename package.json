@@ -25,7 +25,7 @@
     "@types/mysql": "^2.15.7",
     "@types/node-schedule": "^1.2.3",
     "@types/sqlstring": "^2.2.1",
-    "nodemon": "^1.19.1",
+    "nodemon": "^1.19.2",
     "ts-node": "^8.3.0",
     "tslint": "^5.17.0",
     "typescript": "^3.5.3"
