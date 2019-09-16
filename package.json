@@ -1,0 +1,37 @@
+{
+  "name": "pirate-jim",
+  "version": "1.0.0",
+  "description": "A typescript infraction bot.",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build:live",
+    "build": "tsc -p . --incremental",
+    "build:live": "nodemon --watch src/**/*.ts --exec ts-node src/index.ts",
+    "lint": "tslint --fix src/**/*",
+    "lint:nofix": "tslint src/**/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SomeCatIDK/Pirate-Jim.git"
+  },
+  "keywords": [
+    "discord"
+  ],
+  "author": "SomeCatIDK",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SomeCatIDK/Pirate-Jim/issues"
+  },
+  "homepage": "https://github.com/SomeCatIDK/Pirate-Jim#readme",
+  "devDependencies": {
+    "@types/node": "^12.7.5",
+    "nodemon": "^1.19.2",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  }
+}
