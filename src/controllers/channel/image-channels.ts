@@ -90,7 +90,7 @@ function compileIds(array: string[]): string {
 
 function endsInWhitelist(attachment: string): boolean {
     for (const type in whitelistTypes) {
-        if (attachment.endsWith(whitelistTypes[type])) {
+        if (attachment.toLowerCase.endsWith(whitelistTypes[type])) {
             return true;
         }
     }
